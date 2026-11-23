@@ -1,0 +1,66 @@
+LINUX MINT + WINE
+=================
+
+Rodar o Bootstrapper no Wine, captura total: syscalls, rede (pcap),
+arquivos criados, auto-cola a key, triage automatico.
+
+VANTAGENS
+---------
+- Nao eh VM, o Bootstrapper nao tem como detectar
+- strace mostra TUDO que ele faz (arquivos abertos, conexoes)
+- tcpdump pega a URL de download em plaintext (SNI do TLS)
+- arquivos descriptografados ficam em ~/.wine_crack/drive_c/
+- se seu Mint ja passa no EasyAntiCheat, esse Bootstrapper passa facil
+
+PASSOS
+------
+
+1) Copia a pasta linux_mint_kit + o Bootstrapper.exe pro Mint.
+   Se transferiu o crack_vm.zip, extrai e pega o Bootstrapper.exe
+   de dentro dele.
+
+2) No Mint, terminal:
+     chmod +x setup.sh run.sh triage.py
+     ./setup.sh          # uma vez so, instala wine + deps
+
+3) Roda o Bootstrapper:
+     ./run.sh /caminho/do/Bootstrapper.exe
+
+   A key ja vai embutida no script. Se precisar outra:
+     ./run.sh /caminho/Bootstrapper.exe "NOVA_KEY"
+
+4) Quando aparecer a janela do Bootstrapper no Wine, o script cola
+   a key automaticamente (xdotool). Se nao conseguir, cola com
+   Ctrl+V (a key fica na area de transferencia).
+
+5) Deixa ele baixar/decriptar/injetar o hack. Quando achar que
+   terminou, fecha a janela do Bootstrapper. O script faz o sweep
+   final e abre o relatorio.
+
+6) Resultado em:
+     ./loot_YYYYMMDD_HHMMSS/
+       files/      - tudo que o Wine criou/baixou
+       strace/     - trace de syscalls (connect, open, write)
+       net/        - capture.pcap da rede
+       carved/     - PEs extraidos de blobs grandes
+       TRIAGE.md   - relatorio
+
+O QUE OLHAR
+-----------
+- TRIAGE.md -> "Candidatos a payload" (arquivos que podem ser o hack)
+- TRIAGE.md -> "strace: connect()" (IPs/portas que acessou)
+- TRIAGE.md -> "URLs e hostnames" (servidor de licenca/download)
+- files/ -> procura DLL ou EXE que nao seja Windows padrao
+
+TROUBLESHOOTING
+---------------
+- Crash logo: ./setup.sh roda winetricks com vcrun2019 + d3dcompiler_47,
+  mas se faltar: WINEPREFIX=~/.wine_crack winetricks dotnet48
+- Bootstrapper detectou Wine: o setup ja apaga HKCU\Software\Wine.
+  Se detectar mais, roda no console Wine:
+    WINEPREFIX=~/.wine_crack wine regedit
+  e apaga HKLM\Software\Wine tambem.
+- tcpdump pede sudo: configura NOPASSWD no sudoers pra tcpdump, ou
+  roda o script inteiro com sudo (mas ai o Wine fica root, pior).
+- strace torna o Wine super lento: pra teste rapido, edita run.sh
+  e troca a linha strace... por so "wine $BOOT &" e perde strace.
