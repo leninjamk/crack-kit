@@ -1,0 +1,7 @@
+#!/bin/bash
+# Copie para config.sh e edite o GITHUB_TOKEN
+GITHUB_USER="leninjamk"
+GITHUB_REPO="crack-kit"
+GITHUB_TOKEN="COLE_SEU_TOKEN_AQUI"
+GIT_NAME="crack-vm"
+GIT_EMAIL="crack@vm.local"

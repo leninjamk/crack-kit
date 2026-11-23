@@ -1,0 +1,4 @@
+config.sh
+loot_*/
+results_*.tar.gz
+capture_*.pcap
